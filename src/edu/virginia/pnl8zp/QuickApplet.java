@@ -6,14 +6,17 @@ package edu.virginia.pnl8zp;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
  
 import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
  
 public class QuickApplet extends JApplet {
- 
-    private JButton  button;
+
+	private static final long serialVersionUID = 1L; // why do I need this?
+	private JButton  button;
+    private ArrayList<ArrayList<JButton>> board;
  
     public void init() {
         button = new JButton("Click me!");
