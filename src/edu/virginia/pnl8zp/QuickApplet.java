@@ -9,12 +9,15 @@ import java.awt.Graphics;
 import java.awt.Polygon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
  
-public class QuickApplet extends JApplet {
+public class QuickApplet extends JApplet implements MouseListener, MouseMotionListener {
 
 	private static final long serialVersionUID = 1L; // why do I need this?
 	// private JButton  button;
@@ -33,6 +36,8 @@ public class QuickApplet extends JApplet {
 //                    "Hello! I am an applet!");
 //            }
 //        });
+    	addMouseListener(this);
+    	addMouseMotionListener(this);
     	setBackground(grass);
         System.out.println("APPLET IS INITIALIZED");
     }
@@ -72,7 +77,45 @@ public class QuickApplet extends JApplet {
     	
     	g.fillRect(waterXStart1, waterYStart, waterSquareWidth, waterSquareWidth);
     	g.fillRect(waterXStart2, waterYStart, waterSquareWidth, waterSquareWidth);
+    	    	
     }
+    
+    public void mouseEntered( MouseEvent e ) {
+        // called when the pointer enters the applet's rectangular area
+     }
+     public void mouseExited( MouseEvent e ) {
+        // called when the pointer leaves the applet's rectangular area
+    	// JOptionPane.showMessageDialog(QuickApplet.this, "Keep Playing!");
+     }
+     public void mouseClicked( MouseEvent e ) {
+        // called after a press and release of a mouse button
+        // with no motion in between
+        // (If the user presses, drags, and then releases, there will be
+        // no click event generated.)
+     }
+     public void mousePressed( MouseEvent e ) {  // called after a button is pressed down
+    	System.out.println("X: " + e.getX() + ", Y: " + e.getY());
+        // "Consume" the event so it won't be processed in the
+        // default manner by the source which generated it.
+        e.consume();
+     }
+     public void mouseReleased( MouseEvent e ) {  // called after a button is released
+        e.consume();
+     }
+     public void mouseMoved( MouseEvent e ) {  // called during motion when no buttons are down
+        int x = e.getX();
+        int y = e.getY();
+        showStatus( "Mouse Moving at (" + x + "," + y + ")" );
+        e.consume();
+     }
+     public void mouseDragged( MouseEvent e ) {  // called during motion with buttons down
+        int x = e.getX();
+        int y = e.getY();
+        showStatus( "Mouse Dragging at (" + x + "," + y + ")" );
+        repaint(); // will I really have to repaint the entire applet?
+        e.consume();
+     }
+    
 }
 
 
