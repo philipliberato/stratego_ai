@@ -1,5 +1,7 @@
 package edu.virginia.pnl8zp;
 
+import java.awt.Rectangle;
+
 public class Piece {
 	
 	public enum PieceType {
@@ -8,6 +10,9 @@ public class Piece {
 	
 	private PieceType pType;
 	private Boolean seen;
+	private int pieceSize = 40;
+	private Cell cell;
+	public Rectangle piece = new Rectangle();
 
 	public Boolean getSeen() {
 		return seen;
@@ -25,4 +30,12 @@ public class Piece {
 		this.pType = pType;
 	}
 
+	public Cell getCell() {
+		return cell;
+	}
+
+	public void setCell(Cell cell) {
+		this.cell = cell;
+	}
+	
 }
