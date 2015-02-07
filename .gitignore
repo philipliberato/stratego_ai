@@ -5,7 +5,7 @@
 .gradle
 
 bin/
-*
+*.applet
 
 tmp/
 *.tmp
