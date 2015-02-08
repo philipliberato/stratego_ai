@@ -32,6 +32,8 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
 	private static final Color redPlayer = new Color(227, 61, 64);
     private Cell[][] board = new Cell[10][10];
     private Piece[][] pieces = new Piece[10][10];
+    private Player player = new Player();
+    private AI agent = new AI();
     
     // this method acts like the applet constructor
     public void init() {
@@ -46,6 +48,8 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
     	addMouseMotionListener(this);
     	setBackground(grass);
         System.out.println("APPLET IS INITIALIZED");
+        
+        player.addListener(agent);
     }
  
     public void start() {
@@ -108,14 +112,19 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
         			Piece piece = new Piece(r);
         			if(rowCounter < 4) {
         				piece.setColor(redPlayer); 
+        				piece.isRed = true;
         			} else {
         				piece.setColor(bluePlayer);
+        				piece.isRed = false;
         			}
         			piece.setCell(cell);
         			cell.piece = piece;
         			pieces[rowCounter][columnCounter] = piece;
     			} else {
     				cell.piece = null;
+    				if(columnCounter == 2 || columnCounter == 3 || columnCounter == 6 || columnCounter == 7) {
+    					cell.water = true;
+    				}
     			}
     			cell.rowIndex = rowCounter;
     			cell.colIndex = columnCounter;
@@ -133,7 +142,7 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
     	
     	for(Cell[] cellRow : board) {
     		for(Cell cell : cellRow) {
-    			System.out.println("Row: " + cell.rowIndex + ", Col: " + cell.colIndex);
+    			// System.out.println("Row: " + cell.rowIndex + ", Col: " + cell.colIndex);
     			g.drawRect(cell.xVal, cell.yVal, cell.width, cell.width);
     		}
     	}
@@ -166,7 +175,7 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
         // no click event generated.)
      }
      public void mousePressed( MouseEvent e ) {  // called after a button is pressed down
-    	System.out.println("X: " + e.getX() + ", Y: " + e.getY());
+    	// System.out.println("X: " + e.getX() + ", Y: " + e.getY());
         // "Consume" the event so it won't be processed in the
         // default manner by the source which generated it.
 	   	Cell c = getCell(e.getX(), e.getY());
@@ -177,7 +186,15 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
         e.consume();
      }
      public void mouseReleased( MouseEvent e ) {  // called after a button is released
-        selectedPiece = null;
+    	if(selectedPiece != null) {
+	        Cell oldCell = selectedPiece.getCell();
+	        Cell newCell = getCell(e.getX(), e.getY());
+	        
+	        movePiece(oldCell, newCell, selectedPiece);
+	        
+	        selectedPiece = null;
+    	}
+    	repaint();
     	e.consume();
      }
      public void mouseMoved( MouseEvent e ) {  // called during motion when no buttons are down
@@ -207,22 +224,23 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
 	   		} else {
 	   			System.out.println("Rect is null!");
 	   		}
-        } else {
-	   		Piece p = pieces[c.rowIndex][c.colIndex];
-	   		if(p == null) {
-	   			System.out.println("Piece is null!");
-	   		}
-	   		Rectangle r = p.getRect();
-	   		if(r != null) {
-	   			r.x = x - 25;
-	   			r.y = y - 25;
-		   		//r.setLocation(x+1, y+1);
-		   		p.setRect(r);
-		   		System.out.println("Drag - X: " + p.getRect().x + ", Y: " + p.getRect().y);
-	   		} else {
-	   			System.out.println("Rect is null!");
-	   		}
         }
+//        } else {
+//	   		Piece p = pieces[c.rowIndex][c.colIndex];
+//	   		if(p == null) {
+//	   			System.out.println("Piece is null!");
+//	   		}
+//	   		Rectangle r = p.getRect();
+//	   		if(r != null) {
+//	   			r.x = x - 25;
+//	   			r.y = y - 25;
+//		   		//r.setLocation(x+1, y+1);
+//		   		p.setRect(r);
+//		   		System.out.println("Drag - X: " + p.getRect().x + ", Y: " + p.getRect().y);
+//	   		} else {
+//	   			System.out.println("Rect is null!");
+//	   		}
+//        }
         
         repaint(); // will I really have to repaint the entire applet?
         e.consume();
@@ -233,6 +251,57 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
     	 int yIndex = y / 60;
     	 return board[yIndex][xIndex];
      }
+     
+     public void updateCell(Cell updatedCell) {
+    	 for(Cell[] cellRow : board) {
+    		 for(Cell oldCell : cellRow) {
+    			 if(oldCell.xVal == updatedCell.xVal && oldCell.yVal == updatedCell.yVal) {
+    				 oldCell = updatedCell;
+    			 }
+    		 }
+    	 }
+     }
+     
+     public boolean validMove(Cell oldCell, Cell newCell) {
+    	 if(newCell.piece != null || newCell.water == true) {
+    		 return false;
+    	 }
+    	 int rowDiff = Math.abs(newCell.rowIndex - oldCell.rowIndex);
+    	 int colDiff = Math.abs(newCell.colIndex - oldCell.colIndex);
+    	 if(rowDiff + colDiff > 1) {
+    		 return false;
+    	 }
+    	 return true;
+     }
+     
+     public void movePiece(Cell oldCell, Cell newCell, Piece thePiece) {
+    	 
+    	 if(validMove(oldCell, newCell)) {
+             oldCell.setPiece(null); // = null;
+             selectedPiece.setCell(newCell);
+    		 Rectangle r = new Rectangle();
+    		 r.x = newCell.xVal + 5;
+    		 r.y = newCell.yVal + 5;
+    		 r.width = PIECE_WIDTH;
+    		 r.height = PIECE_WIDTH;
+    		 selectedPiece.setRect(r);
+             newCell.setPiece(selectedPiece); // = selectedPiece;
+             updateCell(oldCell);
+             updateCell(newCell);
+        	 player.move(board);
+    	 } else {
+    		 Rectangle r = new Rectangle();
+    		 r.x = oldCell.xVal + 5;
+    		 r.y = oldCell.yVal + 5;
+    		 r.width = PIECE_WIDTH;
+    		 r.height = PIECE_WIDTH;
+    		 selectedPiece.setRect(r);
+    		 oldCell.setPiece(selectedPiece);
+    		 updateCell(oldCell);
+    	 }
+    	 
+     }
+     
 }
 
 

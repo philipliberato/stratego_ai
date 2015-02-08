@@ -15,6 +15,7 @@ public class Piece {
 	private Cell cell;
 	private Rectangle piece;
 	private Color color;
+	public Boolean isRed;
 	
 	public Color getColor() {
 		return color;
