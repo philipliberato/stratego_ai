@@ -5,6 +5,8 @@ public class Cell {
 	public int xVal;
 	public int yVal;
 	public int width;
+	public int rowIndex;
+	public int colIndex;
 	public Piece piece = null;
 	
 	public Cell(int xVal, int yVal, int width) {

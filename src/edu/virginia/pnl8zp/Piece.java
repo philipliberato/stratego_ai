@@ -1,5 +1,6 @@
 package edu.virginia.pnl8zp;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 
 public class Piece {
@@ -12,7 +13,20 @@ public class Piece {
 	private Boolean seen;
 	private int pieceSize = 40;
 	private Cell cell;
-	public Rectangle piece = new Rectangle();
+	private Rectangle piece;
+	private Color color;
+	
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
+	}
+
+	public Piece(Rectangle rect) {
+		this.piece = rect;
+	}
 
 	public Boolean getSeen() {
 		return seen;
@@ -36,6 +50,14 @@ public class Piece {
 
 	public void setCell(Cell cell) {
 		this.cell = cell;
+	}
+	
+	public Rectangle getRect() {
+		return piece;
+	}
+
+	public void setRect(Rectangle rect) {
+		this.piece = rect;
 	}
 	
 }

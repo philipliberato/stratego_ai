@@ -24,9 +24,12 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
 	// private JButton  button;
     // private ArrayList<ArrayList<JButton>> board;
     private static final int POSITION_WIDTH = 60; // i'll modify this when I determine the piece size
+    private static final int PIECE_WIDTH = 50;
     private static final int BOARD_WIDTH = 600; //i'll modify this when I determine the board size
     private static final Color grass = new Color(129, 214, 111);
     private static final Color water = new Color(64, 172, 245);
+	private static final Color bluePlayer = new Color(20, 67, 114);
+	private static final Color redPlayer = new Color(227, 61, 64);
     private Cell[][] board = new Cell[10][10];
     private Piece[][] pieces = new Piece[10][10];
     
@@ -57,70 +60,82 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
     public void destroy() {
         System.out.println("APPLET IS DESTROYED");
     }
-    Boolean firstTime = true;    
+    Boolean firstTime = true;
     public void paint(Graphics g) {
-    	drawBoard(g);
     	if(firstTime) {
+    		initializeBoard();
+    		drawBoard(g);
     		drawPieces(g);
     		firstTime = false;
     	} else {
-    		// updatePieces(g);
-    	}
-    }
-    
-    public void updatePieces(Graphics g) {
-    	g.setColor(grass);
-    	g.fillRect(0, 0, 600, 600);
-    	g.setColor(water);
-    	for(Piece[] p : pieces) {
-    		for(Piece piece : p) {
-    			Rectangle r = piece.piece;
-    			System.out.println("width: " + r.width);
-    			g.fillRect(r.x, r.y, r.width, r.width);
-    		}
+    		drawBoard(g);
+    		drawPieces(g);
     	}
     }
     
     public void drawPieces(Graphics g) {
-    	Color bluePlayer = new Color(20, 67, 114);
-    	Color redPlayer = new Color(227, 61, 64);
-		g.setColor(redPlayer);
 				
     	for(int row = 0; row < 10; row++) {
-    		if(row == 4) {
-    			row = 6;
-    			g.setColor(bluePlayer);
-    		}
     		for(int col = 0; col < 10; col++) {
     			Cell c = board[row][col];
-    			Rectangle r = new Rectangle();
-    			r.setBounds(c.xVal + 5, c.yVal + 5, c.width, c.width);
-    			r.setSize(c.width, c.width);
-    			r.width = 10;
-    			//rect(r);
-    			// c.piece.piece = r;
-    			pieces[row][col].piece = r;
-    			g.fillRect(c.xVal + 5, c.yVal + 5, c.width, c.width);
+    			Piece p = c.piece;
+    			if(p != null) {
+    				if(g.getColor() != p.getColor()) {
+    					g.setColor(p.getColor());
+    				}
+    				Rectangle r = p.getRect();
+    	    		// g.fillRect(c.xVal + 5, c.yVal + 5, c.width, c.width);
+    	    		g.fillRect(r.x, r.y, r.width, r.height);
+
+    			}
     		}
     	}
     }
     
-    public void drawBoard(Graphics g) {
+    public void initializeBoard() {
     	int rowCounter = 0;
     	int columnCounter = 0;
     	for(int row = 0; row < BOARD_WIDTH; row += POSITION_WIDTH) {
     		for(int col = 0; col < BOARD_WIDTH; col += POSITION_WIDTH) {
-    			g.drawRect(col, row, POSITION_WIDTH, POSITION_WIDTH);
-    			Cell cell = new Cell(col, row, 50);
-    			Piece piece = new Piece();
-    			piece.setCell(cell);
-    			cell.piece = piece;
+//    			g.drawRect(col, row, POSITION_WIDTH, POSITION_WIDTH);
+    			Cell cell = new Cell(col, row, POSITION_WIDTH); //50);
+    			if(rowCounter != 4 && rowCounter != 5) {
+        			Rectangle r = new Rectangle();
+        			r.x = cell.xVal + 5;
+        			r.y = cell.yVal + 5;
+        			r.width = PIECE_WIDTH;
+        			r.height = PIECE_WIDTH;
+        			Piece piece = new Piece(r);
+        			if(rowCounter < 4) {
+        				piece.setColor(redPlayer); 
+        			} else {
+        				piece.setColor(bluePlayer);
+        			}
+        			piece.setCell(cell);
+        			cell.piece = piece;
+        			pieces[rowCounter][columnCounter] = piece;
+    			} else {
+    				cell.piece = null;
+    			}
+    			cell.rowIndex = rowCounter;
+    			cell.colIndex = columnCounter;
     			board[rowCounter][columnCounter] = cell;
-    			pieces[rowCounter][columnCounter] = piece;
     			columnCounter++;
     		}
     		rowCounter++;
     		columnCounter = 0;
+    	}
+    }
+    
+    public void drawBoard(Graphics g) {
+
+    	g.clearRect(0, 0, 601, 601);
+    	
+    	for(Cell[] cellRow : board) {
+    		for(Cell cell : cellRow) {
+    			System.out.println("Row: " + cell.rowIndex + ", Col: " + cell.colIndex);
+    			g.drawRect(cell.xVal, cell.yVal, cell.width, cell.width);
+    		}
     	}
     	
     	g.setColor(water);
@@ -154,10 +169,16 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
     	System.out.println("X: " + e.getX() + ", Y: " + e.getY());
         // "Consume" the event so it won't be processed in the
         // default manner by the source which generated it.
+	   	Cell c = getCell(e.getX(), e.getY());
+	   	Piece p = c.piece;
+	   	if(p != null) {
+	   		selectedPiece = p;
+	   	}
         e.consume();
      }
      public void mouseReleased( MouseEvent e ) {  // called after a button is released
-        e.consume();
+        selectedPiece = null;
+    	e.consume();
      }
      public void mouseMoved( MouseEvent e ) {  // called during motion when no buttons are down
         int x = e.getX();
@@ -165,19 +186,43 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
         showStatus( "Mouse Moving at (" + x + "," + y + ")" );
         e.consume();
      }
+     
+     public Piece selectedPiece = null;
+     
      public void mouseDragged( MouseEvent e ) {  // called during motion with buttons down
         int x = e.getX();
         int y = e.getY();
         showStatus( "Mouse Dragging at (" + x + "," + y + ")" );
         
 	   	Cell c = getCell(e.getX(), e.getY());
-	   	if(c.piece != null) {
-	   		Piece p = c.piece;
-	   		p.piece.setLocation(x+1, y+1);
-	   		System.out.println(p.piece.width);
-	   	} else {
-	   		System.out.println("Cell: X-" + c.xVal + ", Y-" + c.yVal);
-	   	}
+        
+        if(selectedPiece != null) {
+	   		Rectangle r = selectedPiece.getRect();
+	   		if(r != null) {
+	   			r.x = x - 25;
+	   			r.y = y - 25;
+		   		//r.setLocation(x+1, y+1);
+		   		selectedPiece.setRect(r);
+		   		// System.out.println("Drag - X: " + p.getRect().x + ", Y: " + p.getRect().y);
+	   		} else {
+	   			System.out.println("Rect is null!");
+	   		}
+        } else {
+	   		Piece p = pieces[c.rowIndex][c.colIndex];
+	   		if(p == null) {
+	   			System.out.println("Piece is null!");
+	   		}
+	   		Rectangle r = p.getRect();
+	   		if(r != null) {
+	   			r.x = x - 25;
+	   			r.y = y - 25;
+		   		//r.setLocation(x+1, y+1);
+		   		p.setRect(r);
+		   		System.out.println("Drag - X: " + p.getRect().x + ", Y: " + p.getRect().y);
+	   		} else {
+	   			System.out.println("Rect is null!");
+	   		}
+        }
         
         repaint(); // will I really have to repaint the entire applet?
         e.consume();
