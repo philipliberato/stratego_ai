@@ -6,6 +6,8 @@
 
 bin/
 
+src/images/
+
 tmp/
 *.tmp
 *.bak

@@ -1,5 +1,5 @@
 package edu.virginia.pnl8zp;
 
 public interface MoveListener {
-	public void moveMade(Cell[][] board);
+	public void moveMade();
 }
