@@ -24,8 +24,45 @@ public class Piece {
 	public Boolean isRed;
 	// public Owner owner;
 	public String oType = "";
+	public Boolean knownByOpponent = false;
+	public ProbabilityDistribution probability = null;
+	public boolean hasMoved = false;
 	
 	public String pieceTypeToString() {
+		if(pType == null) {
+			return "P";
+		}	
+		switch(pType) {
+			case FLAG:
+				return "F";
+			case BOMB:
+				return "B";
+			case SPY:
+				return "1";
+			case MARSHAL:
+				return "10";
+			case GENERAL:
+				return "9";
+			case COLONEL:
+				return "8";
+			case MAJOR:
+				return "7";
+			case CAPTAIN:
+				return "6";
+			case LIEUTENANT:
+				return "5";
+			case SERGEANT:
+				return "4";
+			case MINER:
+				return "3";
+			case SCOUT:
+				return "2";
+			default:
+				return "error";
+		}
+	}
+	
+	public static String pieceTypeToString(PieceType pType) {
 		if(pType == null) {
 			return "P";
 		}	
@@ -74,9 +111,15 @@ public class Piece {
 	public void setColor(Color color) {
 		this.color = color;
 	}
+	
+	public void pieceMoved() {
+		this.hasMoved = true;
+		this.probability.pieceMoved();
+	}
 
 	public Piece(Rectangle rect) {
 		this.piece = rect;
+		this.probability = new ProbabilityDistribution();
 	}
 
 	public Boolean getSeen() {
@@ -203,5 +246,59 @@ public class Piece {
 	public void setRect(Rectangle rect) {
 		this.piece = rect;
 	}
+
+//	@Override
+//	public int hashCode() {
+//		final int prime = 31;
+//		int result = 1;
+//		result = prime * result + ((color == null) ? 0 : color.hashCode());
+//		result = prime * result + ((image == null) ? 0 : image.hashCode());
+//		result = prime * result + ((isRed == null) ? 0 : isRed.hashCode());
+//		result = prime * result + ((oType == null) ? 0 : oType.hashCode());
+//		result = prime * result + ((pType == null) ? 0 : pType.hashCode());
+//		result = prime * result + ((piece == null) ? 0 : piece.hashCode());
+//		return result;
+//	}
+//
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Piece other = (Piece) obj;
+		if (color == null) {
+			if (other.color != null)
+				return false;
+		} else if (!color.equals(other.color))
+			return false;
+		if (image == null) {
+			if (other.image != null)
+				return false;
+		} else if (!image.equals(other.image))
+			return false;
+		if (isRed == null) {
+			if (other.isRed != null)
+				return false;
+		} else if (!isRed.equals(other.isRed))
+			return false;
+		if (oType == null) {
+			if (other.oType != null)
+				return false;
+		} else if (!oType.equals(other.oType))
+			return false;
+		if (pType != other.pType)
+			return false;
+		if (piece == null) {
+			if (other.piece != null)
+				return false;
+		} else if (!piece.equals(other.piece))
+			return false;
+		return true;
+	}
+	
+
 	
 }

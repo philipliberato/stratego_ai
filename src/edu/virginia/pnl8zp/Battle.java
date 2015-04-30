@@ -11,7 +11,11 @@ public class Battle {
 	public static String message;
 	
     public static int battle(Piece defender, Piece attacker) {
+    	
+    	Stratego.panel.repaint();
 
+    	Stratego.TOTAL_BATTLES++;
+    	
 		String format   = "           ";
 		message  = "<html>Attacker: " + (attacker.getOwner() + format).substring(0, 10) + "<br>";
 		message += "Defender: " + (defender.getOwner() + format).substring(0, 10) + "<br><br>";
@@ -26,10 +30,14 @@ public class Battle {
 		if(result == 1) { // remove defender
 			 message += attacker.getOwner() + " </html>";
 			 // winner = attacker;
+			 attacker.knownByOpponent = true;
+			 attacker.probability.updateProbabilityForKnownPiece(attacker);
 			 loser = defender;
 		} else if(result == -1) { // remove attacker
 			message += defender.getOwner() + " </html>";
 			// winner = defender;
+			defender.knownByOpponent = true;
+			defender.probability.updateProbabilityForKnownPiece(defender);
 			loser = attacker;
 		} else if(result == 0) { // remove both
 			message += "DRAW! </html>";
@@ -37,9 +45,18 @@ public class Battle {
 			if(attacker.oType.equals("AI")) {
 				Stratego.deadRedPieces.add(attacker.getImage().getScaledInstance(30, 30, 0));
 				Stratego.getAgent().removePiece(attacker);
+				Stratego.getAgent().removeDiscoveredOpponentPiece(attacker);
+				int newVal = Stratego.AI_REMAINING_PIECES.get(attacker.getpType()) - 1;
+				Stratego.AI_REMAINING_PIECES.put(attacker.getpType(), newVal);
 			} else {
 				Stratego.deadBluePieces.add(attacker.getImage().getScaledInstance(30, 30, 0));
-				Player.pieces.remove(attacker);
+				//Player.pieces.remove(attacker);
+				Stratego.getPlayer().removePiece(attacker);
+				if(Stratego.getPlayer().isAI) {
+					Stratego.getPlayer().getAI_Instance().removePiece(attacker);
+				}
+				int newVal = Stratego.HUMAN_REMAINING_PIECES.get(attacker.getpType()) - 1;
+				Stratego.HUMAN_REMAINING_PIECES.put(attacker.getpType(), newVal);
 			}
 		} else if(result == -2) {
 			liveGame = false;
@@ -52,9 +69,19 @@ public class Battle {
 		if(loser.oType.equals("AI")) {
 			Stratego.deadRedPieces.add(loser.getImage().getScaledInstance(30, 30, 0));
 			Stratego.getAgent().removePiece(loser);
+			int newVal = Stratego.AI_REMAINING_PIECES.get(loser.getpType()) - 1;
+			Stratego.AI_REMAINING_PIECES.put(loser.getpType(), newVal);
+			Stratego.getAgent().addDicoveredOpponentPiece(attacker);
 		} else {
 			Stratego.deadBluePieces.add(loser.getImage().getScaledInstance(30, 30, 0));
-			Player.pieces.remove(loser);
+			// Player.pieces.remove(loser);
+			Stratego.getPlayer().removePiece(loser);
+			if(Stratego.getPlayer().isAI) {
+				Stratego.getPlayer().removePiece(loser);
+			}
+			Stratego.getAgent().removeDiscoveredOpponentPiece(loser);
+			int newVal = Stratego.HUMAN_REMAINING_PIECES.get(loser.getpType()) - 1;
+			Stratego.HUMAN_REMAINING_PIECES.put(loser.getpType(), newVal);
 		}
 
 		JPanel panel = new JPanel();
@@ -65,7 +92,9 @@ public class Battle {
 		panel.add(new JLabel(new ImageIcon(defender.getImage())));
 		
 		if(liveGame) {
-			JOptionPane.showMessageDialog(Stratego.frame, panel, "BATTLE REPORT", JOptionPane.PLAIN_MESSAGE, null);
+//			panel.setVisible(true);
+//			JOptionPane.showMessageDialog(Stratego.frame, panel, "BATTLE REPORT", JOptionPane.PLAIN_MESSAGE, null);
+//			panel.setVisible(true);			
 		} else {
 			String options[] = {"New Game", "Record Data", "Exit"};
 			Stratego.endGameOption = JOptionPane.showOptionDialog(Stratego.frame, panel, "BATTLE REPORT", JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, options, null);
@@ -77,7 +106,8 @@ public class Battle {
 			}
 			return -2;
 		}
-		
+		Stratego.panel.repaint();
+    			
 		return result;
     }
     
@@ -87,7 +117,7 @@ public class Battle {
     	int dValue;
     	String checkDefense = defender.pieceTypeToString();
     	if(checkDefense.equals("F")) { 
-    		System.out.println("Game Over - Battle.wonBattle()");
+    		//System.out.println("Game Over - Battle.wonBattle()");
     		return -2;
     	} else if(checkDefense.equals("B")) {
     		if(aValue == 3) {

@@ -16,6 +16,25 @@ public class Cell {
 		this.yVal = yVal;
 		this.width = width;
 	}
+	
+	/* returns 0 if the cell absolutely can't be moved to
+	 * returns -1 if the cell is unoccupied and can be moved to
+	 * returns 1 if the cell is occupied by an opponent piece but can be moved to
+	 */
+	public int isMovable(boolean pOwnerRed) {
+		if(water) {
+			return 0;
+		}
+		if(piece == null) {
+			return -1;
+		}
+		
+		if(piece.isRed != pOwnerRed) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
 
 	public Piece getPiece() {
 		return piece;
@@ -30,6 +49,8 @@ public class Cell {
 			}
 		}
 		this.piece = piece;
+  	   	 Stratego.panel.revalidate();
+  	   	 Stratego.panel.repaint();
 	}
 	
 	public Piece handleBattleResult(int retVal, Piece piece) {

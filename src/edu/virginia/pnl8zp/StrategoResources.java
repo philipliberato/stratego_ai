@@ -2,6 +2,9 @@ package edu.virginia.pnl8zp;
 
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.util.HashMap;
+
+import edu.virginia.pnl8zp.Piece.PieceType;
 
 public class StrategoResources {
 	// 		FLAG, BOMB, SPY, MARSHALL, GENERAL, COLONEL, MAJOR, CAPTAIN, LIEUTENANT, SERGEANT, MINER, SCOUT
@@ -30,6 +33,7 @@ public class StrategoResources {
 	public Image red_sergeant = null;
 	public Image red_miner = null;
 	public Image red_scout = null;
+	public static Image red_piece = null;
 
 	public StrategoResources() {
 		loadImages();
@@ -60,12 +64,61 @@ public class StrategoResources {
 		this.red_sergeant = loadImage("red/", "red_sergeant");
 		this.red_miner = loadImage("red/", "red_miner");
 		this.red_scout = loadImage("red/", "red_scout");
+		StrategoResources.red_piece = loadImage("red/", "red_piece");
 	}
 	
 	public Image loadImage(String subfolder, String filename) {
 		java.net.URL url = ClassLoader.getSystemResource("images/" + subfolder + filename + ".png");
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		return kit.createImage(url);
+	}
+	
+	public static int attackerWonBattle(String attacker, String defender) {
+		int aValue = Integer.parseInt(attacker);
+    	int dValue;
+    	if(defender.equals("F")) { 
+    		//System.out.println("Game Over - Battle.wonBattle()");
+    		return 1;
+    	} else if(defender.equals("B")) {
+    		if(aValue == 3) {
+    			return 1;
+    		} else {
+    			return -1;
+    		}
+    	} else {
+    		if(!defender.equals("P")) {
+    			dValue = Integer.parseInt(defender);
+    		} else {
+    			return 1;
+    		}
+    		if(aValue == 1 && dValue == 10) {
+    			return 1;
+    		}
+    		if(aValue == 10 && dValue == 1) {
+    			return -1;
+    		}
+    		if(aValue > dValue) {
+    			return 1;
+    		} else if(aValue < dValue) {
+    			return -1;
+    		} else {
+    			return 0;
+    		}
+    	}
+	}
+	
+	// HashMap<PieceType, Integer> aiSetupOptions = (HashMap<PieceType, Integer>) RandomAI.setupOptions.clone();
+	// HashMap<PieceType, Integer> playerSetupOptions = (HashMap<PieceType, Integer>) RandomAI.setupOptions.clone();
+	
+	public static void assignPieceGeneticAlgorithm(Piece p, String oType) {
+//		if(oType.equals("AI")) {
+//			
+//		}
+//		if(oType.equals("PLAYER")) {
+//			
+//		}
+		// p.setpType(assignGeneticPieceType(p.getCell(), oType));
+		
 	}
 	
 }

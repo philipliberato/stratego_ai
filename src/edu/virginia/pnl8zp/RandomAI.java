@@ -10,13 +10,27 @@ import edu.virginia.pnl8zp.Piece.PieceType;
 
 // use a genetic algorithm for initially placing pieces on the board - can use for all AI instances
 
-public class RandomAI extends AI { //implements MoveListener { // make this an abstract class
+public class RandomAI extends AI {
 	
-	public static ArrayList<Piece> pieces;
+	public ArrayList<Piece> pieces;
 	public static HashMap<PieceType, Integer> setupOptions;
+	public static boolean visiblePieceValues = false;
+	public boolean isAIRed;
 	
 	public String stringIdentifier() {
 		return "RandomAI";
+	}
+	
+	public void isAIRed(boolean val) {
+		isAIRed = val;
+	}
+	
+	public void togglePieceView() {
+		visiblePieceValues = !visiblePieceValues;
+	}
+	
+	public boolean getArePieceValuesVisible() {
+		return visiblePieceValues;
 	}
 
 	public RandomAI () {
@@ -45,17 +59,26 @@ public class RandomAI extends AI { //implements MoveListener { // make this an a
 		return pieces;
 	}
 	
+	public void setPieces(ArrayList<Piece> thePieces) {
+		pieces = thePieces;
+	}
+	
 	@Override
 	public void moveMade() {
 		/*
 		 * I should really run this in a separate thread... or several
 		 */
 		if(pieces.size() > 1) {
-			makeRandomMove();
+			makeRandomMove(pieces, "AI");
+			if(Stratego.player.isAI) {
+				// System.out.println("Player is AI");
+				Stratego.player.makeMoveAsAI();
+			} else {
+				// System.out.println("Player is Human");
+			}
 		} else {
 		   	 JOptionPane.showMessageDialog(null, "YOU WIN!!!!");
 		}
-		// System.out.println("AI Pieces: " + pieces.size());
 	}
 	
 	public boolean removePiece(Piece beatenPiece) {
@@ -90,7 +113,14 @@ public class RandomAI extends AI { //implements MoveListener { // make this an a
 		}
 	}
 	
-	public void makeRandomMove() {
+	@Override
+	public void removeDiscoveredOpponentPiece(Piece discoveredPiece) {
+
+	}
+	
+	public void makeRandomMove(ArrayList<Piece> availablePieces, String oType) {
+		
+		System.out.println("makeRandomMove called by: " + oType);
 		
 		int pieceIndex = 0;
 		boolean randomMoveFound = false;
@@ -105,36 +135,36 @@ public class RandomAI extends AI { //implements MoveListener { // make this an a
 			
 			String checkStationary = "B";
 			do {
-				pieceIndex = rand.nextInt(pieces.size());
-				checkStationary = pieces.get(pieceIndex).pieceTypeToString();
+				pieceIndex = rand.nextInt(availablePieces.size());
+				checkStationary = availablePieces.get(pieceIndex).pieceTypeToString();
 			} while(checkStationary.equals("B") || checkStationary.equals("F"));
 			
 			
-			oldCell = pieces.get(pieceIndex).getCell();
+			oldCell = availablePieces.get(pieceIndex).getCell();
 			randRow = oldCell.rowIndex;
 			randCol = oldCell.colIndex;
 			
 			switch(direction) {
 				case 0:
-					if(Move.availableSpot(randRow - 1, randCol)) {
+					if(Move.availableSpot(randRow - 1, randCol, oType)) {
 						randRow--;
 						randomMoveFound = true;
 						break;
 					}
 				case 1:
-					if(Move.availableSpot(randRow, randCol + 1)) {
+					if(Move.availableSpot(randRow, randCol + 1, oType)) {
 						randCol++;
 						randomMoveFound = true;
 						break;
 					}
 				case 2:
-					if(Move.availableSpot(randRow, randCol - 1)) {
+					if(Move.availableSpot(randRow, randCol - 1, oType)) {
 						randCol--;
 						randomMoveFound = true;
 						break;
 					}
 				case 3:
-					if(Move.availableSpot(randRow + 1, randCol)) {
+					if(Move.availableSpot(randRow + 1, randCol, oType)) {
 						randRow++;
 						randomMoveFound = true;
 						break;
@@ -145,12 +175,27 @@ public class RandomAI extends AI { //implements MoveListener { // make this an a
 			newCell = Stratego.board[randRow][randCol];
 
 		} while(randomMoveFound == false);
-		// System.out.println("AI move: (" + oldCell.rowIndex + ", " + oldCell.colIndex + ") --> (" + newCell.rowIndex + ", " + newCell.colIndex + ")");
 		Move.movePiece(oldCell, newCell);
 	}
 	
-	
+	@Override
+	public void addDicoveredOpponentPiece(Piece discoveredPiece) {
+		
+	}
 
+	@Override
+	public void makeValuedMove(ArrayList<Piece> availablePieces, String oType) {
+		// only implemented in the ValuedAI class
+		// perhaps I could just make a call to makeRandomMove here, in the event
+		// that something buggy/weird happens...
+	}
+	
+	@Override
+	public void makeMinimaxMove(ArrayList<Piece> availablePieces, String oType) {
+		// only implemented in the MinimaxAI class
+		// perhaps I could just make a call to makeRandomMove here, in the event
+		// that something buggy/weird happens...
+	}
 }
 
 

@@ -6,7 +6,7 @@ public class Move {
 	
 	 public static Battle b = new Battle();
 	
-	public static boolean availableSpot(int row, int col) {
+	public static boolean availableSpot(int row, int col, String oType) {
 		if(row > 9 || row < 0 || col > 9 || col < 0) {
 			return false;
 		}
@@ -17,7 +17,7 @@ public class Move {
 		if(c.getPiece() == null) {
 			return true;
 		}
-		if(c.getPiece() != null && c.getPiece().oType.equals("AI")) {
+		if(c.getPiece() != null && c.getPiece().oType.equals(oType)) {
 			return false;
 		}
 
@@ -52,7 +52,18 @@ public class Move {
     }
     
     public static void movePiece(Cell oldCell, Cell newCell) {
+    	
+    	Stratego.TOTAL_MOVES++;
+    	Stratego.panel.repaint();
+    	
     	 Piece thePiece = oldCell.piece;
+    	 try{
+        	 thePiece.pieceMoved();
+    	 } catch(NullPointerException e) {
+    		 System.out.println("oldCell - r" + oldCell.rowIndex + " c" + oldCell.colIndex);
+    		 System.out.println("newCell - r" + newCell.rowIndex + " c" + newCell.colIndex);
+    		 e.printStackTrace();
+    	 }
    		 Rectangle r = new Rectangle();
    		 r.x = newCell.xVal; // + 5;
    		 r.y = newCell.yVal; // + 5;
@@ -102,7 +113,11 @@ public class Move {
     			 }
     		 }
     	 }
-   	   	    		 
+   	   	    	   	 
+   	   	 // System.out.println(javax.swing.SwingUtilities.isEventDispatchThread());
+   	   	 Stratego.panel.revalidate();
+   	   	 Stratego.panel.repaint();
+   	   	 //Thread.wait(100);
        	 // player.move(board);
    	 }
 	
