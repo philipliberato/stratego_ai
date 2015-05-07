@@ -2,6 +2,7 @@ package edu.virginia.pnl8zp;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Map.Entry;
 
@@ -229,13 +230,30 @@ public class BoardNode implements TreeNode {
 //			
 //		}
 		
-		double w1 = 0.5;
-		double w2 = 1;
-		double w3 = 1;
-		double w4 = 0.3;
-		double w5 = 0;
-		double w6 = 0.1;
-		double w7 = 0;
+		// hTheta: 0.9672881802569002
+		
+		double w1 = 0.97970;
+		double w2 = 0.88921; //0.5;
+		double w3 = 0.86356; //0.5;
+		double w4 = 0.82001; //0.3;
+		double w5 = 0.5996; //0.5;
+		double w6 = 0.47643; //0.3;
+		double w7 = 0.83684;
+		
+		// Training Data For Logistic Regression
+		
+//		TrainingDataInputs trainingData = Stratego.trainingData;
+//		
+//		int element = 0;
+//		
+//		w1 = trainingData.trainingDataInputs[element][0];
+//		w2 = trainingData.trainingDataInputs[element][1];
+//		w3 = trainingData.trainingDataInputs[element][2];
+//		w4 = trainingData.trainingDataInputs[element][3];
+//		w5 = trainingData.trainingDataInputs[element][4];
+//		w6 = trainingData.trainingDataInputs[element][5];
+		
+		// -------------------------------------		
 		
 		double attackedPiece = 0;
 		double personalStrength = 0;
@@ -245,10 +263,22 @@ public class BoardNode implements TreeNode {
 		double verticalMovement = 0;
 		double distanceToUnknowns = 0;
 		
+//		if(movementVector.lastMinimaxMoveLocation != null && movementVector.lastMinimaxMoveLocation == movementVector.selectedPieceDestination) {
+//			utility += 100;
+//		}
+		
 		if(oldCellData.hasPiece && oldCellData.isRed != isAIRed) {
 			attackedPiece = 1;
-			if(oldCellData.probability.getProbabilityWinOrTie(movementVector.selectedPiece.pType) > 0.5) {
+			double victoryProb = oldCellData.probability.getProbabilityWinOrTie(movementVector.selectedPiece.pType);
+			if(victoryProb == 0) {
+				attackedPiece -= 100;
+			} else if(victoryProb < 0.5) {
+				attackedPiece -= 3;
+			}else { // victoryProb > 0.5
 				attackedPiece += 3;
+			}
+			if(victoryProb == 1) {
+				attackedPiece += 10;
 			}
 		}
 		
@@ -300,6 +330,39 @@ public class BoardNode implements TreeNode {
 					opponentStrength += Integer.parseInt(mc.probability.pieceTypeToString(mc.pType));
 				}
 			}
+		}
+		
+		MinimaxCell you = movementVector.selectedPieceDestination;
+		// double xVal = 100;
+		// double yVal = 100;
+		double distance = 100;
+		for(MinimaxCell o : opponentPieces) {
+			if(o.hasMoven == false) {
+				double tempDist = Math.hypot(you.colIndex - o.colIndex, you.rowIndex - o.rowIndex);
+				if(tempDist < distance) {
+					distance = tempDist;
+				}
+			}
+		}
+		if(distance != 100) {
+			minerBombSearchFactor += 10 - distance;
+		}
+		
+		// int numUnseen = 0;
+		// MinimaxCell you = movementVector.selectedPiece;
+		// xVal = 100;
+		// yVal = 100;
+		distance = 100;
+		for(MinimaxCell o : opponentPieces) {
+			if(o.knownByOpponent == false) {
+				double tempDist = Math.hypot(you.colIndex - o.colIndex, you.rowIndex - o.rowIndex);
+				if(tempDist < distance) {
+					distance = tempDist;
+				}
+			}
+		}
+		if(distance != 100) {
+			distanceToUnknowns += 10 - distance;
 		}
 		
 		utility += w1 * attackedPiece;
@@ -362,5 +425,123 @@ public class BoardNode implements TreeNode {
 			return false;
 		}
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((availableMoves == null) ? 0 : availableMoves.hashCode());
+		result = prime * result + Arrays.hashCode(boardForMovementVector);
+		long temp;
+		temp = Double.doubleToLongBits(boardStateUtility);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result
+				+ ((children == null) ? 0 : children.hashCode());
+		result = prime * result + depth;
+		result = prime * result + depthLimit;
+		result = prime * result
+				+ ((flagCell == null) ? 0 : flagCell.hashCode());
+		result = prime
+				* result
+				+ ((globalProbDistribution == null) ? 0
+						: globalProbDistribution.hashCode());
+		result = prime * result + (isAIRed ? 1231 : 1237);
+		result = prime * result
+				+ ((movementVector == null) ? 0 : movementVector.hashCode());
+		result = prime * result
+				+ ((nLocation == null) ? 0 : nLocation.hashCode());
+		result = prime * result
+				+ ((oLocation == null) ? 0 : oLocation.hashCode());
+		result = prime * result
+				+ ((oldCellData == null) ? 0 : oldCellData.hashCode());
+		result = prime * result
+				+ ((opponentPieces == null) ? 0 : opponentPieces.hashCode());
+		result = prime * result + ((parent == null) ? 0 : parent.hashCode());
+		result = prime * result
+				+ ((yourPieces == null) ? 0 : yourPieces.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BoardNode other = (BoardNode) obj;
+		if (availableMoves == null) {
+			if (other.availableMoves != null)
+				return false;
+		} else if (!availableMoves.equals(other.availableMoves))
+			return false;
+		if (!Arrays.deepEquals(boardForMovementVector,
+				other.boardForMovementVector))
+			return false;
+		if (Double.doubleToLongBits(boardStateUtility) != Double
+				.doubleToLongBits(other.boardStateUtility))
+			return false;
+		if (children == null) {
+			if (other.children != null)
+				return false;
+		} else if (!children.equals(other.children))
+			return false;
+		if (depth != other.depth)
+			return false;
+		if (depthLimit != other.depthLimit)
+			return false;
+		if (flagCell == null) {
+			if (other.flagCell != null)
+				return false;
+		} else if (!flagCell.equals(other.flagCell))
+			return false;
+		if (globalProbDistribution == null) {
+			if (other.globalProbDistribution != null)
+				return false;
+		} else if (!globalProbDistribution.equals(other.globalProbDistribution))
+			return false;
+		if (isAIRed != other.isAIRed)
+			return false;
+		if (movementVector == null) {
+			if (other.movementVector != null)
+				return false;
+		} else if (!movementVector.equals(other.movementVector))
+			return false;
+		if (nLocation == null) {
+			if (other.nLocation != null)
+				return false;
+		} else if (!nLocation.equals(other.nLocation))
+			return false;
+		if (oLocation == null) {
+			if (other.oLocation != null)
+				return false;
+		} else if (!oLocation.equals(other.oLocation))
+			return false;
+		if (oldCellData == null) {
+			if (other.oldCellData != null)
+				return false;
+		} else if (!oldCellData.equals(other.oldCellData))
+			return false;
+		if (opponentPieces == null) {
+			if (other.opponentPieces != null)
+				return false;
+		} else if (!opponentPieces.equals(other.opponentPieces))
+			return false;
+		if (parent == null) {
+			if (other.parent != null)
+				return false;
+		} else if (!parent.equals(other.parent))
+			return false;
+		if (yourPieces == null) {
+			if (other.yourPieces != null)
+				return false;
+		} else if (!yourPieces.equals(other.yourPieces))
+			return false;
+		return true;
+	}
+	
+	
 
 }

@@ -107,17 +107,82 @@ public class StrategoResources {
     	}
 	}
 	
-	// HashMap<PieceType, Integer> aiSetupOptions = (HashMap<PieceType, Integer>) RandomAI.setupOptions.clone();
-	// HashMap<PieceType, Integer> playerSetupOptions = (HashMap<PieceType, Integer>) RandomAI.setupOptions.clone();
+	public static PieceType dummyGetNextPlayerPieceType(HashMap<PieceType, Integer> o) {
+		if(o.containsKey(PieceType.FLAG)) {
+			return PieceType.FLAG;
+		} else if(o.containsKey(PieceType.BOMB)) {
+			return PieceType.BOMB;
+		} else if(o.containsKey(PieceType.MARSHAL)) {
+			return PieceType.MARSHAL;
+		} else if(o.containsKey(PieceType.GENERAL)) {
+			return PieceType.GENERAL;
+		} else if(o.containsKey(PieceType.SPY)) {
+			return PieceType.SPY;
+		} else if(o.containsKey(PieceType.COLONEL)) {
+			return PieceType.COLONEL;
+		} else if(o.containsKey(PieceType.MAJOR)) {
+			return PieceType.MAJOR;
+		} else if(o.containsKey(PieceType.CAPTAIN)) {
+			return PieceType.CAPTAIN;
+		} else if(o.containsKey(PieceType.LIEUTENANT)) {
+			return PieceType.LIEUTENANT;
+		} else if(o.containsKey(PieceType.SERGEANT)) {
+			return PieceType.SERGEANT;
+		} else if(o.containsKey(PieceType.MINER)) {
+			return PieceType.MINER;
+		} else if(o.containsKey(PieceType.SCOUT)) {
+			return PieceType.SCOUT;
+		}
+		return null;
+	}
 	
-	public static void assignPieceGeneticAlgorithm(Piece p, String oType) {
-//		if(oType.equals("AI")) {
-//			
-//		}
-//		if(oType.equals("PLAYER")) {
-//			
-//		}
-		// p.setpType(assignGeneticPieceType(p.getCell(), oType));
+	public static PieceType dummyGetNextAIPieceType(HashMap<PieceType, Integer> o) {	
+		if(o.containsKey(PieceType.SCOUT)) {
+			return PieceType.SCOUT;
+		} else if(o.containsKey(PieceType.MINER)) {
+			return PieceType.MINER;
+		} else if(o.containsKey(PieceType.SERGEANT)) {
+			return PieceType.SERGEANT;
+		} else if(o.containsKey(PieceType.LIEUTENANT)) {
+			return PieceType.LIEUTENANT;
+		} else if(o.containsKey(PieceType.CAPTAIN)) {
+			return PieceType.CAPTAIN;
+		} else if(o.containsKey(PieceType.MAJOR)) {
+			return PieceType.MAJOR;
+		} else if(o.containsKey(PieceType.COLONEL)) {
+			return PieceType.COLONEL;
+		} else if(o.containsKey(PieceType.SPY)) {
+			return PieceType.SPY;
+		} else if(o.containsKey(PieceType.GENERAL)) {
+			return PieceType.GENERAL;
+		} else if(o.containsKey(PieceType.MARSHAL)) {
+			return PieceType.MARSHAL;
+		} else if(o.containsKey(PieceType.BOMB)) {
+			return PieceType.BOMB;
+		} else if(o.containsKey(PieceType.FLAG)) {
+			return PieceType.FLAG;
+		}
+		return null;
+	}
+	
+	public static HashMap<PieceType, Integer> assignPieceGeneticAlgorithm(HashMap<PieceType, Integer> setupOptions, Piece piece, String oType) {
+		PieceType assignment = null;
+		
+		if(oType.equals("AI")) {
+			assignment = dummyGetNextPlayerPieceType(setupOptions);
+		}
+		if(oType.equals("PLAYER")) {
+			assignment = dummyGetNextAIPieceType(setupOptions);
+		}
+		piece.setpType(assignment);
+		
+		if(setupOptions.get(assignment) == 1) {
+			setupOptions.remove(assignment);
+		} else {
+			setupOptions.put(assignment, setupOptions.get(assignment) - 1);
+		}
+		
+		return setupOptions;
 		
 	}
 	

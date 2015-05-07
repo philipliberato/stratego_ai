@@ -247,19 +247,26 @@ public class Piece {
 		this.piece = rect;
 	}
 
-//	@Override
-//	public int hashCode() {
-//		final int prime = 31;
-//		int result = 1;
-//		result = prime * result + ((color == null) ? 0 : color.hashCode());
-//		result = prime * result + ((image == null) ? 0 : image.hashCode());
-//		result = prime * result + ((isRed == null) ? 0 : isRed.hashCode());
-//		result = prime * result + ((oType == null) ? 0 : oType.hashCode());
-//		result = prime * result + ((pType == null) ? 0 : pType.hashCode());
-//		result = prime * result + ((piece == null) ? 0 : piece.hashCode());
-//		return result;
-//	}
-//
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((cell == null) ? 0 : cell.hashCode());
+		result = prime * result + ((color == null) ? 0 : color.hashCode());
+		result = prime * result + (hasMoved ? 1231 : 1237);
+		result = prime * result + ((image == null) ? 0 : image.hashCode());
+		result = prime * result + ((isRed == null) ? 0 : isRed.hashCode());
+		result = prime * result
+				+ ((knownByOpponent == null) ? 0 : knownByOpponent.hashCode());
+		result = prime * result + ((oType == null) ? 0 : oType.hashCode());
+		result = prime * result + ((pType == null) ? 0 : pType.hashCode());
+		result = prime * result + ((piece == null) ? 0 : piece.hashCode());
+		result = prime * result
+				+ ((probability == null) ? 0 : probability.hashCode());
+		result = prime * result + ((seen == null) ? 0 : seen.hashCode());
+		return result;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -269,10 +276,17 @@ public class Piece {
 		if (getClass() != obj.getClass())
 			return false;
 		Piece other = (Piece) obj;
+		if (cell == null) {
+			if (other.cell != null)
+				return false;
+		} else if (!cell.equals(other.cell))
+			return false;
 		if (color == null) {
 			if (other.color != null)
 				return false;
 		} else if (!color.equals(other.color))
+			return false;
+		if (hasMoved != other.hasMoved)
 			return false;
 		if (image == null) {
 			if (other.image != null)
@@ -283,6 +297,11 @@ public class Piece {
 			if (other.isRed != null)
 				return false;
 		} else if (!isRed.equals(other.isRed))
+			return false;
+		if (knownByOpponent == null) {
+			if (other.knownByOpponent != null)
+				return false;
+		} else if (!knownByOpponent.equals(other.knownByOpponent))
 			return false;
 		if (oType == null) {
 			if (other.oType != null)
@@ -296,9 +315,31 @@ public class Piece {
 				return false;
 		} else if (!piece.equals(other.piece))
 			return false;
+		if (probability == null) {
+			if (other.probability != null)
+				return false;
+		} else if (!probability.equals(other.probability))
+			return false;
+		if (seen == null) {
+			if (other.seen != null)
+				return false;
+		} else if (!seen.equals(other.seen))
+			return false;
 		return true;
 	}
-	
 
-	
+//	@Override
+//	public int hashCode() {
+//		final int prime = 31;
+//		int result = 1;
+//		result = prime * result + ((color == null) ? 0 : color.hashCode());
+//		result = prime * result + ((image == null) ? 0 : image.hashCode());
+//		result = prime * result + ((isRed == null) ? 0 : isRed.hashCode());
+//		result = prime * result + ((oType == null) ? 0 : oType.hashCode());
+//		result = prime * result + ((pType == null) ? 0 : pType.hashCode());
+//		result = prime * result + ((piece == null) ? 0 : piece.hashCode());
+//		return result;
+//	}
+//
+
 }

@@ -79,7 +79,7 @@ public class ProbabilityDistribution {
 				Piece p = c.piece;
 				if(p != null) {
 					if(p.isRed == discoveredPiece.isRed) {
-						updateProbForRemovedPiece(discoveredPiece.getpType());
+						p.probability.updateProbForRemovedPiece(discoveredPiece.getpType());
 					}
 				}
 			}
@@ -96,7 +96,7 @@ public class ProbabilityDistribution {
 			}
 		}
 		
-		return probSuccess;
+		return 1- probSuccess;
 	}
 	
 	public double getProbabilityNotPiece(PieceType pieceType) {
@@ -196,5 +196,36 @@ public class ProbabilityDistribution {
 					return "error";
 			}
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + (firstTime ? 1231 : 1237);
+			result = prime * result
+					+ ((possibilities == null) ? 0 : possibilities.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ProbabilityDistribution other = (ProbabilityDistribution) obj;
+			if (firstTime != other.firstTime)
+				return false;
+			if (possibilities == null) {
+				if (other.possibilities != null)
+					return false;
+			} else if (!possibilities.equals(other.possibilities))
+				return false;
+			return true;
+		}
+		
+		
 		
 }

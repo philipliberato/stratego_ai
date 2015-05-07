@@ -70,6 +70,10 @@ public class MovementVector {
 		// utility += pVal;
 		utility += 10 - distance;
 		// System.out.println(distance);
+//		if(probWinOrTie > 0.3) {
+//			utility += (10 * probWinOrTie);
+//		}
+	
 		utility += (10 * probWinOrTie);
 		
 		
@@ -163,5 +167,72 @@ public class MovementVector {
 			System.out.println("\tProbOfWinOrTie: " + probDist.getProbabilityWinOrTie(yourPiece.getpType()));
 		}
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MovementVector other = (MovementVector) obj;
+		if (isMovableResult != other.isMovableResult)
+			return false;
+		if (lastMinimaxMoveLocation == null) {
+			if (other.lastMinimaxMoveLocation != null)
+				return false;
+		} else if (!lastMinimaxMoveLocation
+				.equals(other.lastMinimaxMoveLocation))
+			return false;
+		if (lastMoveLocation == null) {
+			if (other.lastMoveLocation != null)
+				return false;
+		} else if (!lastMoveLocation.equals(other.lastMoveLocation))
+			return false;
+		if (minimaxProbDistribution == null) {
+			if (other.minimaxProbDistribution != null)
+				return false;
+		} else if (!minimaxProbDistribution
+				.equals(other.minimaxProbDistribution))
+			return false;
+		if (moveLocation == null) {
+			if (other.moveLocation != null)
+				return false;
+		} else if (!moveLocation.equals(other.moveLocation))
+			return false;
+		if (otherPiece == null) {
+			if (other.otherPiece != null)
+				return false;
+		} else if (!otherPiece.equals(other.otherPiece))
+			return false;
+		if (probDist == null) {
+			if (other.probDist != null)
+				return false;
+		} else if (!probDist.equals(other.probDist))
+			return false;
+		if (Double.doubleToLongBits(probWinOrTie) != Double
+				.doubleToLongBits(other.probWinOrTie))
+			return false;
+		if (selectedPiece == null) {
+			if (other.selectedPiece != null)
+				return false;
+		} else if (!selectedPiece.equals(other.selectedPiece))
+			return false;
+		if (selectedPieceDestination == null) {
+			if (other.selectedPieceDestination != null)
+				return false;
+		} else if (!selectedPieceDestination
+				.equals(other.selectedPieceDestination))
+			return false;
+		if (yourPiece == null) {
+			if (other.yourPiece != null)
+				return false;
+		} else if (!yourPiece.equals(other.yourPiece))
+			return false;
+		return true;
+	}
+	
+	
 	
 }

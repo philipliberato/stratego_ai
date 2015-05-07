@@ -90,5 +90,7 @@ public class MinimaxCell {
 		this.pType = pType;
 		this.probability = pd;
 	}
+	
+	
 
 }

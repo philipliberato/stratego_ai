@@ -99,10 +99,14 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
 	public static boolean playerTurn = false;
 	public static boolean aiTurn = true;
 	public static boolean playerHasMadeMove = false;
+	public static TrainingDataInputs trainingData;
+	public static int trainingEntry = 0;
 	
     
     // this method acts like the applet constructor
     public void init() {
+    	
+    	trainingData = new TrainingDataInputs();
 
         Frame[] frames = Frame.getFrames();
         for (Frame frame : frames) {
@@ -360,26 +364,30 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
             public void actionPerformed(ActionEvent evt) {
                 //Graphics gr = getGraphics();      
                 Stratego.panel.repaint();
-                if(Stratego.playerTurn) {
-                	if(Stratego.getPlayer().isAI) {
-                    	Stratego.getPlayer().makeMoveAsAI();
-                    	Stratego.playerTurn = false;
-                    	Stratego.aiTurn = true;
-                	} else if(Stratego.playerHasMadeMove) {
-                    	Stratego.playerTurn = false;
-                    	Stratego.playerHasMadeMove = false;
-                    	Stratego.aiTurn = true;
-                	} else {
-                		// keep on waiting
-                	}
+                if(gameOver != true) {
+                    if(Stratego.playerTurn) {
+                    	if(Stratego.getPlayer().isAI) {
+                        	Stratego.getPlayer().makeMoveAsAI();
+                        	Stratego.playerTurn = false;
+                        	Stratego.aiTurn = true;
+                    	} else if(Stratego.playerHasMadeMove) {
+                        	Stratego.playerTurn = false;
+                        	Stratego.playerHasMadeMove = false;
+                        	Stratego.aiTurn = true;
+                    	} else {
+                    		// keep on waiting
+                    	}
 
-                } else if(Stratego.aiTurn) {
-                    //Stratego.getAgent().makeRandomMove(Stratego.getAgent().getPieces(), "AI");
-                    Stratego.getAgent().makeMove(Stratego.getAgent().getPieces());
-                    Stratego.aiTurn = false;
-                    Stratego.playerTurn = true;
+                    } else if(Stratego.aiTurn) {
+                        //Stratego.getAgent().makeRandomMove(Stratego.getAgent().getPieces(), "AI");
+                        Stratego.getAgent().makeMove(Stratego.getAgent().getPieces());
+                        Stratego.aiTurn = false;
+                        Stratego.playerTurn = true;
+                    } else {
+                    	
+                    }
                 } else {
-                	
+                	// call game over?
                 }
             }
         });
@@ -498,6 +506,8 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
     @SuppressWarnings("unchecked")
 	public void initializeBoard() {
     	Player.setupOptions = (HashMap<PieceType, Integer>) RandomAI.setupOptions.clone();
+    	HashMap<PieceType, Integer> playerSetupOptions = (HashMap<PieceType, Integer>) RandomAI.setupOptions.clone();
+    	HashMap<PieceType, Integer> aiSetupOptions = (HashMap<PieceType, Integer>) RandomAI.setupOptions.clone();
     	int rowCounter = 0;
     	int columnCounter = 0;
     	for(int row = 0; row < BOARD_WIDTH; row += POSITION_WIDTH) {
@@ -519,7 +529,7 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
             				getAgent().assignPieceType(piece);
         				}
         				if(Stratego.setupSelection.equals("Genetic")) {
-        					StrategoResources.assignPieceGeneticAlgorithm(piece, "AI");
+        					aiSetupOptions = StrategoResources.assignPieceGeneticAlgorithm(aiSetupOptions, piece, "AI");
         				}
         				getAgent().getPieces().add(piece);
         			} else {
@@ -531,7 +541,7 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
             				player.randomBoard(piece);
         				}
         				if(Stratego.setupSelection.equals("Genetic")) {
-        					StrategoResources.assignPieceGeneticAlgorithm(piece, "PLAYER");
+        					playerSetupOptions = StrategoResources.assignPieceGeneticAlgorithm(playerSetupOptions, piece, "PLAYER");
         				}
         				Player.pieces.add(piece);
         				// piece.setpType(PieceType.FLAG);
@@ -787,7 +797,7 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
 	}
 	
 	public static String cwdPath = "/home/philip/Development/UVA/stratego_ai";
-	public static String filename = "logger.txt";
+	public static String filename = "minimaxVrandom-old.txt"; // "logger.txt";
 	public static void recordData() {
 		System.out.println("Recording Data");
 		
@@ -798,6 +808,16 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
 		        + getHumanRemainingPieces() + "::AI_REMAINING_PIECES" + getAIRemainingPieces() + "::" 
 				+ (new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()));
 		
+		int element = Stratego.trainingEntry;
+		int classification = 0;
+		if(Stratego.WINNER.equals("AI")) {
+			classification = 1;
+		}
+//		results += trainingData.trainingDataInputs[element][0] + " " + trainingData.trainingDataInputs[element][1] + " "
+//				+ trainingData.trainingDataInputs[element][2] + " " + trainingData.trainingDataInputs[element][3] + " "
+//				+ trainingData.trainingDataInputs[element][4] + " " + trainingData.trainingDataInputs[element][5] + " "
+//				+ classification;
+		
 		try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(cwdPath+"/"+filename, true)))) {
 		    out.println(results);
 		}catch (IOException e) {
@@ -805,6 +825,8 @@ public class Stratego extends JApplet implements MouseListener, MouseMotionListe
 		}
 
 		System.exit(0);
+		// start();
+		
 	}
      
 }

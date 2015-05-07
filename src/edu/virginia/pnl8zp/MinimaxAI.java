@@ -20,12 +20,13 @@ public class MinimaxAI extends AI {
 
 	public ArrayList<Piece> pieces;
 	public static HashMap<PieceType, Integer> setupOptions;
-	public static boolean visiblePieceValues = true;
+	public static boolean visiblePieceValues = false;
 	public ArrayList<Piece> knownOpponentPieces;
 	public boolean isAIRed;
 	public Cell lastPieceLocation = null;
 	public HashMap<BoardNode, ArrayList<BoardNode>> decisionTree;
 	public long minimaxAlphaBetaStartTime;
+	public static TrainingDataInputs trainingData;
 	
 	@Override
 	public String stringIdentifier() {
@@ -51,6 +52,8 @@ public class MinimaxAI extends AI {
 		knownOpponentPieces = new ArrayList<Piece>();
 		setupOptions = new HashMap<PieceType, Integer>();
 		loadSetupOptions();	
+		trainingData = new TrainingDataInputs();
+		// trainingData.printTrainingDataInputs();
 	}
 	
 	public void loadSetupOptions() {
@@ -213,19 +216,38 @@ public class MinimaxAI extends AI {
 //    		}
 //    	}
     	// System.out.println("Number of pieces: " + yourPieces.size());
-    	ArrayList<Piece> yourPieces = getYourPieces();
+    	ArrayList<Piece> yourPieces = getYourPieces();    	
     	ArrayList<MovementVector> availableMoves = getPossibleMoves(yourPieces);
-    	BoardNode decisionTreeRoot = buildDecisionTree(availableMoves, 4);
+    	
+    	if(availableMoves.size() == 0) {
+    		Stratego.gameOver = true;
+    		if(isAIRed == false) {
+    			Stratego.WINNER = "AI";
+    		} else {
+    			Stratego.WINNER = "HUMAN";
+    		}
+    		Battle.gameOver(null, null, "");
+    		return;
+    	}
+    	
+    	BoardNode decisionTreeRoot = buildDecisionTree(availableMoves, 3);
     	
 //    	BoardNode currentNode = decisionTreeRoot;
-    	System.out.println("Total Nodes: " + countNodes(decisionTreeRoot)); 	
+    	// System.out.println("Total Nodes: " + countNodes(decisionTreeRoot)); 
     	
     	bestBoard = decisionTreeRoot.children.get(0);
+    	
+    	for(BoardNode child : decisionTreeRoot.children) {
+    		if(child.utilityFunction() > bestBoard.utilityFunction()) {
+    			bestBoard = child;
+    		}
+    	}
+    	
     	best = null;
     	
     	int depth = 2;
-    	int searchDepth = 4;
-    	long timeConstraint = 3000;
+    	int searchDepth = 3;
+    	long timeConstraint = 2000;
     	double bestValue = 0;
     	minimaxAlphaBetaStartTime = System.currentTimeMillis();
     	while(depth <= searchDepth) { // && System.currentTimeMillis() - minimaxAlphaBetaStartTime < timeConstraint) {
@@ -243,13 +265,32 @@ public class MinimaxAI extends AI {
     	while(bestBoard.parent.movementVector != null) {
     		bestBoard = bestBoard.parent;
     	}
+    	
+    	if(lastPieceLocation != null) {
+    		if(bestBoard.movementVector.selectedPieceDestination.colIndex == lastPieceLocation.colIndex &&
+    				bestBoard.movementVector.selectedPieceDestination.rowIndex == lastPieceLocation.rowIndex) {
+    	    	for(BoardNode child : decisionTreeRoot.children) {
+    	    		if(child.utilityFunction() > bestBoard.utilityFunction()) {
+    	    			bestBoard = child;
+    	    		}
+    	    	}
+    		}
+    	}
+    	
     	MovementVector bestMove = bestBoard.movementVector;
     	MinimaxCell oldSpot = bestMove.selectedPiece;
     	MinimaxCell newSpot = bestMove.selectedPieceDestination;
-    	System.out.println("Chosen Node: r" + oldSpot.rowIndex + " c" + oldSpot.colIndex
+    	String mover = "";
+    	if(isAIRed == true) {
+    		mover = "AI";
+    	} else {
+    		mover = "HUMAN";
+    	}
+    	System.out.println(mover + " Chosen Node: r" + oldSpot.rowIndex + " c" + oldSpot.colIndex
     			+ " --> r" + newSpot.rowIndex + " c" + newSpot.colIndex);
 
-    	    	
+
+    	lastPieceLocation = Stratego.board[oldSpot.rowIndex][oldSpot.colIndex];
 		Move.movePiece(Stratego.board[oldSpot.rowIndex][oldSpot.colIndex], 
 				Stratego.board[newSpot.rowIndex][newSpot.colIndex]);
     	
@@ -307,7 +348,7 @@ public class MinimaxAI extends AI {
 //	}
 	
 	public double alpha_beta(BoardNode node, int depth, double alpha, double beta, boolean maximizingPlayer) {
-		if(depth == 0 || node.isLeaf()) { // || System.currentTimeMillis() - minimaxAlphaBetaStartTime > 3000) {
+		if(depth == 0 || node.isLeaf() || System.currentTimeMillis() - minimaxAlphaBetaStartTime > 3000) {
 			return node.boardStateUtility;
 		}
 		if(maximizingPlayer) {
@@ -383,15 +424,5 @@ public class MinimaxAI extends AI {
 		}
 		return rootBoardState;
 	}
-	
-//	public double maxValue(double alpha, double beta, int depth) { // returns a utility value
-//		return 2.0;
-//	}
-//	
-////	public int currDepthLimit = 4;
-//
-//	public double minValue(double alpha, double beta, int depth) { // returns a utility
-//		return 2.0;
-//	}
 
 }

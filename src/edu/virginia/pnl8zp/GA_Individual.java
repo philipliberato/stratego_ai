@@ -2,13 +2,13 @@ package edu.virginia.pnl8zp;
 
 import java.util.Random;
 
-public class GA_BoardSetup_Individual
+public class GA_Individual
 {
     public int NUMBER_OF_WEIGHTS = 5;							// keeping this general so I can use GA in multiple places
     private double[] genes = new double[NUMBER_OF_WEIGHTS];		// genes are the weights I think
     private double fitnessValue;
 
-    public GA_BoardSetup_Individual(int numOfWeights) {
+    public GA_Individual(int numOfWeights) {
     	this.NUMBER_OF_WEIGHTS = numOfWeights;
     }
 

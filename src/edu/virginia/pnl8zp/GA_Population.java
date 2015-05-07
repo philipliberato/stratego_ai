@@ -2,25 +2,25 @@ package edu.virginia.pnl8zp;
 
 import java.util.Random;
 
-public class GA_BoardSetup_Population {
-    final static int ELITISM_K = 3;					// always keep the 3 best
-    final static int POP_SIZE = 20 + ELITISM_K;  	// population size - 23
+public class GA_Population {
+    final static int ELITISM_K = 2;					// always keep the 3 best
+    final static int POP_SIZE = 3 + ELITISM_K;  	// population size - 23
     final static int MAX_ITER = 2000;             	// max number of iterations
     final static double MUTATION_RATE = 0.05;    	// probability of mutation
     final static double CROSSOVER_RATE = 0.7;     	// probability of crossover
 
     public static Random m_rand = new Random();
-    public GA_BoardSetup_Individual[] candidateWeights;
+    public GA_Individual[] candidateWeights;
     public double totalFitness;
     public static int numberOfGenes = 0;
 
-    public GA_BoardSetup_Population(int numOfGenes, double[] previousSessionFindings) {
-    	candidateWeights = new GA_BoardSetup_Individual[POP_SIZE];
+    public GA_Population(int numOfGenes, double[] previousSessionFindings) {
+    	candidateWeights = new GA_Individual[POP_SIZE];
     	numberOfGenes = numOfGenes;
 
         // build the initial population
         for (int i = 0; i < POP_SIZE; i++) {
-        	candidateWeights[i] = new GA_BoardSetup_Individual(numberOfGenes);
+        	candidateWeights[i] = new GA_Individual(numberOfGenes);
         	// if previous findings are null, all should be random - but if not null, previousSessionFindings should be a factor
         	candidateWeights[i].randGenes();
         }
@@ -46,7 +46,7 @@ public class GA_BoardSetup_Population {
 //        return m_population[idx-1];
 //    }
 
-    public GA_BoardSetup_Individual findBestIndividual() {
+    public GA_Individual findBestIndividual() {
         int iBestIndividual = 0;
         double currentMax = 0.0;
         double currentMin = 1.0;
@@ -70,11 +70,11 @@ public class GA_BoardSetup_Population {
         return candidateWeights[iBestIndividual]; // return individual with highest fitness
     }
 
-    public static GA_BoardSetup_Individual[] crossover(GA_BoardSetup_Individual indiv1, GA_BoardSetup_Individual indiv2) {
+    public static GA_Individual[] crossover(GA_Individual indiv1, GA_Individual indiv2) {
     	
-    	GA_BoardSetup_Individual[] newIndiv = new GA_BoardSetup_Individual[2];
-        newIndiv[0] = new GA_BoardSetup_Individual(numberOfGenes);
-        newIndiv[1] = new GA_BoardSetup_Individual(numberOfGenes);
+    	GA_Individual[] newIndiv = new GA_Individual[2];
+        newIndiv[0] = new GA_Individual(numberOfGenes);
+        newIndiv[1] = new GA_Individual(numberOfGenes);
 
         int randPoint = m_rand.nextInt(numberOfGenes);
         int i;
@@ -91,11 +91,11 @@ public class GA_BoardSetup_Population {
     
     // GETTERS AND SETTERS
     
-    public void setPopulation(GA_BoardSetup_Individual[] newPop) {
+    public void setPopulation(GA_Individual[] newPop) {
         System.arraycopy(newPop, 0, this.candidateWeights, 0, POP_SIZE);
     }
 
-    public GA_BoardSetup_Individual[] getPopulation() {
+    public GA_Individual[] getPopulation() {
         return this.candidateWeights;
     }
 }

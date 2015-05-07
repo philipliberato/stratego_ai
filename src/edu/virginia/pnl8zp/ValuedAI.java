@@ -189,7 +189,7 @@ public class ValuedAI extends AI {
     			}
     		}
     	}
-    	
+    	    	
     	System.out.println("Number of pieces: " + yourPieces.size());
     	
     	ArrayList<MovementVector> availableMoves = new ArrayList<MovementVector>();
@@ -214,6 +214,17 @@ public class ValuedAI extends AI {
         			}
         		}
     		}
+    	}
+    	
+    	if(availableMoves.size() == 0) {
+    		Stratego.gameOver = true;
+    		if(isAIRed == false) {
+    			Stratego.WINNER = "AI";
+    		} else {
+    			Stratego.WINNER = "HUMAN";
+    		}
+    		Battle.gameOver(null, null, "");
+    		return;
     	}
     	
     	System.out.println("Number of possible moves: " + availableMoves.size());

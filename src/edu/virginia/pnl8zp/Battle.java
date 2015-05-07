@@ -13,6 +13,9 @@ public class Battle {
     public static int battle(Piece defender, Piece attacker) {
     	
     	Stratego.panel.repaint();
+    	
+    	defender.probability.updateProbabilityForKnownPiece(defender);
+    	attacker.probability.updateProbabilityForKnownPiece(attacker);
 
     	Stratego.TOTAL_BATTLES++;
     	
@@ -31,13 +34,13 @@ public class Battle {
 			 message += attacker.getOwner() + " </html>";
 			 // winner = attacker;
 			 attacker.knownByOpponent = true;
-			 attacker.probability.updateProbabilityForKnownPiece(attacker);
+			 // attacker.probability.updateProbabilityForKnownPiece(attacker);
 			 loser = defender;
 		} else if(result == -1) { // remove attacker
 			message += defender.getOwner() + " </html>";
 			// winner = defender;
 			defender.knownByOpponent = true;
-			defender.probability.updateProbabilityForKnownPiece(defender);
+			// defender.probability.updateProbabilityForKnownPiece(defender);
 			loser = attacker;
 		} else if(result == 0) { // remove both
 			message += "DRAW! </html>";
@@ -60,6 +63,7 @@ public class Battle {
 			}
 		} else if(result == -2) {
 			liveGame = false;
+			Stratego.gameOver = true;
 			message = "GAME OVER!!!";
 			loser = defender;
 		} else {
@@ -83,32 +87,41 @@ public class Battle {
 			int newVal = Stratego.HUMAN_REMAINING_PIECES.get(loser.getpType()) - 1;
 			Stratego.HUMAN_REMAINING_PIECES.put(loser.getpType(), newVal);
 		}
-
-		JPanel panel = new JPanel();
-		panel.add(new JLabel(new ImageIcon(attacker.getImage())));
-		JLabel label = new JLabel(message);
-		label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 12));
-		panel.add(label);
-		panel.add(new JLabel(new ImageIcon(defender.getImage())));
 		
 		if(liveGame) {
 //			panel.setVisible(true);
 //			JOptionPane.showMessageDialog(Stratego.frame, panel, "BATTLE REPORT", JOptionPane.PLAIN_MESSAGE, null);
 //			panel.setVisible(true);			
 		} else {
-			String options[] = {"New Game", "Record Data", "Exit"};
-			Stratego.endGameOption = JOptionPane.showOptionDialog(Stratego.frame, panel, "BATTLE REPORT", JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, options, null);
-			Stratego.gameOver = true;
-			if(attacker.oType.equals("AI")) {
-				Stratego.WINNER = Stratego.getAgent().stringIdentifier();
-			} else {
-				Stratego.WINNER = "HUMAN";
-			}
+			gameOver(attacker, defender, "Flag");
 			return -2;
 		}
 		Stratego.panel.repaint();
     			
 		return result;
+    }
+    
+    public static void gameOver(Piece attacker, Piece defender, String reasonForCall) {
+		JPanel panel = new JPanel();
+		
+		if(reasonForCall.equals("Flag")) {
+			panel.add(new JLabel(new ImageIcon(attacker.getImage())));
+			JLabel label = new JLabel(message);
+			label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 12));
+			panel.add(label);
+			panel.add(new JLabel(new ImageIcon(defender.getImage())));
+			if(attacker.oType.equals("AI")) {
+				Stratego.WINNER = "AI"; // Stratego.getAgent().stringIdentifier();
+			} else {
+				Stratego.WINNER = "HUMAN";
+			}
+		}
+			
+		
+		String options[] = {"New Game", "Record Data", "Exit"};
+		Stratego.endGameOption = JOptionPane.showOptionDialog(Stratego.frame, panel, "BATTLE REPORT", JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, options, null);
+		Stratego.gameOver = true;
+
     }
     
     public static int wonBattle(Piece attacker, Piece defender) {
